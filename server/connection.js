@@ -76,6 +76,12 @@ class Connection {
 		// if joiner, remove self from lobby and update playerlist
 		delete this.my_game["players"][this.name];
 		this.broadcast("update_playerlist", JSON.stringify(this.add_playerlist()));
+	    } else if (this.my_game["model"].state == "done") {
+		delete this.my_game["players"][this.name];
+		this.broadcast("update_playerlist", JSON.stringify(this.add_playerlist()));
+		if (Object.keys(this.my_game["players"]).length == 0) {
+		    delete this.data[this.game_id];
+		}
 	    }
 	}
     }

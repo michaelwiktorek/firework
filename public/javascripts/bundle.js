@@ -570,7 +570,6 @@ class Board {
 
     // empties "container" and renders a list of cards
     render_cardlist(cardlist, container) {
-	// TODO consider not clobbering existing cards
 	container.children(".player_card").remove();
 	for (let card of cardlist) {
 	    container.append(this.render_card(card));
@@ -603,9 +602,7 @@ class Board {
 		    if (bot_width == 0) {
 			bot_width = init_width;
 		    }
-		    console.log(bot_width);
 		    board_map[card.color].width(bot_width + 20);
-		    console.log(board_map[card.color].width());
 		}
 	    } else { // make new pile
 		board_map[card.color] = card_dom;
@@ -635,7 +632,7 @@ class Board {
 
     // update board state based on state received from server
     update(state) {
-	console.log(state);
+	//console.log(state);
 	for (let update of Object.keys(state)) {
 	    this.updates[update](state);
 	}

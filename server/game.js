@@ -263,6 +263,9 @@ class Game {
     player_play(name, index) {
 	var player = this.find_player(name);
 	var new_cards = player.place(index);
+	if (this.over) {
+	    this.state = "done";
+	}
 	return { decksize: this.deck.size(),
 		 discard:  this.cardlist_json(this.discard),
 		 newhand:  this.player_newcards(name, new_cards, index),
@@ -277,6 +280,9 @@ class Game {
     player_discard(name, index) {
 	var player = this.find_player(name);
 	let new_cards = player.discard(index);
+	if (this.over) {
+	    this.state = "done";
+	}
 	return { decksize: this.deck.size(),
 		 discard:  this.cardlist_json(this.discard),
 		 turn:     this.get_turn_name(),
