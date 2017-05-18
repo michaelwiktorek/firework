@@ -35,18 +35,15 @@ class Board {
 	this.turn     = state.turn;
 	this.hand     = [];
 
+	this.discard_colors = [];
+
 	this.game_area = $("#game_area");
 	this.players_area = $("#players");
 
 	this.players = this.construct_playerlist(state.players);
 	this.construct_controls();
 
-	if (this.turn == this.client.name) {
-	    $("#turn").show();
-	} else {
-	    this.update_turn({turn: this.turn});
-	}
-
+	this.update_turn({turn: this.turn});
 	this.update_nextturn({nextturn: state.nextturn});
 
 	$("#decksize").text("decksize: " + this.decksize.toString());
@@ -164,10 +161,12 @@ class Board {
     }
 
     // renders "cardlist" into ordered stacks divided by color
-    // TODO doesn't order by number; works because cards
-    // are placed in the cardlist in order. Fix?
     render_gameboard(cardlist, container, discard=false) {
 	container.children(".player_card").remove();
+	// begin by sorting cardlist by number
+	cardlist.sort(function(a, b) {
+	    return a.number - b.number;
+	});
 	let init_width = 50;
 	var board_map = {};
 	for (let card of cardlist) {
@@ -193,15 +192,14 @@ class Board {
 		}
 	    } else { // make new pile
 		board_map[card.color] = card_dom;
+		// store discard piles in persistent order 
+		if (discard && this.discard_colors.indexOf(card.color) < 0) {
+		    this.discard_colors.push(card.color);
+		}
 	    }
 	}
-	let i = 1;
-	for (let pile of Object.keys(board_map)) {
-	     if (discard) {
-		//board_map[pile].css("grid-row", i + "/" + (i+1));
-		i++;	
-	    }
-	    container.append(board_map[pile]);
+	for (let color of this.discard_colors) {
+	    container.append(board_map[color]);
 	}
     }
 
@@ -283,8 +281,12 @@ class Board {
 	this.turn = state.turn;
 	if (this.turn == this.client.name) {
 	    $("#turn").show();
+	    $("#current_turn").hide();
 	} else {
 	    $("#turn").hide();
+	    if (state.turn != "") {
+		$("#current_turn").show().text("this turn: " + state.turn);
+	    }
 	}
 	for (let player of this.players) {
 	    if (player.name == this.turn) {
