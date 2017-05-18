@@ -1,0 +1,47 @@
+<html>
+    <head>
+	<title>Firework</title>
+	<link rel="stylesheet" href="stylesheets/style.css">
+	<script src="javascripts/bundle.js"></script>
+    </head>
+   
+    <body>
+	<div id="centerbox">
+	    <div id="title">firework</div>
+	    <div id="start_area">
+		<form id="start_form" >
+		    player name:
+		    <input type="text" id="playername">
+		    <button id="name_button" >create game</button>
+		</form>
+		<div id="game_url" ></div>
+	    </div>
+	    <div id="game_area" >
+		<div id="players" class="game_element" ></div>
+		<div id="card_piles" >
+		    <div id="board"  class="game_element" >game board: </div>
+		    <div id="discard"  class="game_element" >discard pile: </div>
+		</div>
+		<div id="indicators" >
+		    <div id="decksize"  class="game_element" ></div>
+		    <div id="tokens"  class="game_element" >tokens: 20</div>
+		    <div id="fuse"  class="game_element" >fuse: 3</div>
+		    <div id="turn"  class="game_element" >Your turn!</div>
+		    <div id="game_over"  class="game_element" >Game Over!</div>
+		</div>
+	    </div>
+	</div>
+	<div id="playerlist_container" >
+	    Players:
+	    <div id="playerlist" ></div>
+	</div>
+	<div id="chat_container" >
+	    Chat:
+	    <ul id="messages" ></ul>
+	    <form id="chat_form">
+		<input id="chat_box" autocomplete="off" ><button>send</button>
+	    </form>
+	</div>
+	
+    </body>
+</html>

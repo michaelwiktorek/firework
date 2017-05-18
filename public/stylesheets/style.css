@@ -1,0 +1,183 @@
+body {
+    font-family: Gotham, sans-serif;
+    text-align: center;
+    color: #555555;
+}
+
+#centerbox {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 50px;
+    border: 1px black solid;
+}
+
+#centerbox #title {
+    font-size: 100px;
+}
+
+#start_area {
+    margin-bottom: 30px;
+    margin-top: 30px;
+}
+
+#playerlist {
+    border: solid 1px black;
+    width: 400px;
+    display: inline-block;
+    padding: 10px;
+    margin: 20px;
+}
+
+#playerlist_container {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.card {
+    display: inline-block;
+    border: #555555 1px solid;
+    border-bottom: none;
+    border-radius: 5px 5px 0px 0px;
+    width: 200px;
+    height: 300px;
+    margin: 10px;
+}
+
+.hidden_card {
+    vertical-align: top;
+    display: inline-block;
+    border: #555555 1px solid;
+    border-bottom: none;
+    border-radius: 5px 5px 0px 0px;
+    width: 100px;
+    height: 130px;
+    margin: 10px;
+    background-color: LightGray;
+}
+
+.hidden_card span {
+    display: inline-block;
+    background-color: white;
+    padding: 2px;
+    margin: 2px;
+    border-radius: 3px;
+    border: 1px #666666 solid;
+}
+
+#chat_container {
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px black solid;
+    display: inline-block;
+}
+#messages {
+    height: 200px;
+    width: 400px;
+    overflow-y: scroll;
+    text-align: left;
+}
+#messages li {
+    list-style: none;
+}
+
+.button:hover {
+    cursor: pointer;
+    border: black 1px solid;
+    color: black;
+}
+
+.player_card {
+    position: relative;
+    vertical-align: middle;
+    text-align: left;
+    height: 80px;
+    width: 50px;
+    display: inline-block;
+    border: 1px black solid;
+    border-radius: 3px;
+}
+
+.player_card .player_card {
+    position: absolute;
+    left: 3px;
+}
+
+.player_card .discarded_card {
+    position: absolute;
+    left: 17px;
+    top: -1px;
+}
+
+#board .player_card {
+    margin-top: 0px;
+    margin-bottom: 10px;
+    margin-right: 17px;
+}
+
+#board {
+    padding-top: 5px;
+}
+
+#players .player_card {
+    margin: 3px;
+}
+
+#discard .player_card {
+    margin: 3px;
+    margin-top: 0px;
+    display: block;
+}
+
+.player_card .num_label {
+    display: inline-block;
+    background-color: white;
+    padding: 2px;
+    margin: 2px;
+    border-radius: 3px;
+    border: 1px #666666 solid;
+}
+
+.player_card .color_known {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    border-radius: 3px;
+    background-color: white;
+}
+
+.player_div {
+    padding: 5px;
+    margin: 2px;
+}
+
+.token {
+    margin-top: 10px;
+}
+
+#card_renders {
+    text-align: center;
+}
+
+.game_element {
+    border: 1px #666666 solid;
+    border-radius: 3px;
+    height: auto;
+    padding: 5px;
+    margin: 3px;
+    display: inline-block;
+}
+
+#card_piles {
+    display: inline-block;
+    vertical-align: top;
+}
+
+#card_piles .game_element {
+    display: block;
+    min-width: 200px;
+    min-height: 80px;
+}
+
+#players {
+    display: inline-block;
+}
