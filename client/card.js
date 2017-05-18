@@ -62,6 +62,7 @@ class Card {
 	    msg.data.indices = indices;
 	    this.dom.children("button").hide();
 	    this.dom.css("border", "1px black solid");
+	    this.dom.css("margin", "3px");
 	    $(".in_hand").unbind("mouseover mouseout click");
 	    $(".token").text("Spend Token");
 	    $(".cancel").remove();

@@ -4,15 +4,27 @@ body {
     color: #555555;
 }
 
+#game_area {
+    display: inline-block;
+    padding: 20px;
+    /* border: 1px black solid;
+       border-radius: 5px; */
+}
+
 #centerbox {
     margin-left: auto;
     margin-right: auto;
     margin-top: 50px;
-    border: 1px black solid;
+    /*border: 1px black solid;*/
 }
 
 #centerbox #title {
     font-size: 100px;
+}
+
+#chat_stuff {
+    display: inline-block;
+    vertical-align: top;
 }
 
 #start_area {
@@ -21,8 +33,9 @@ body {
 }
 
 #playerlist {
-    border: solid 1px black;
-    width: 400px;
+    border: solid 1px #666666;
+    border-radius: 3px;
+    min-width: 100px;
     display: inline-block;
     padding: 10px;
     margin: 20px;
@@ -67,12 +80,14 @@ body {
 #chat_container {
     margin-left: auto;
     margin-right: auto;
-    border: 1px black solid;
+    padding-top: 5px;
+    border: 1px solid #666666;
+    border-radius: 3px;
     display: inline-block;
 }
 #messages {
-    height: 200px;
-    width: 400px;
+    height: 275px;
+    width: 350px;
     overflow-y: scroll;
     text-align: left;
 }
@@ -104,7 +119,7 @@ body {
 
 .player_card .discarded_card {
     position: absolute;
-    left: 17px;
+    left: 19px;
     top: -1px;
 }
 
@@ -123,8 +138,7 @@ body {
 }
 
 #discard .player_card {
-    margin: 3px;
-    margin-top: 0px;
+    margin-bottom: -50px;
     display: block;
 }
 
@@ -173,11 +187,25 @@ body {
 }
 
 #card_piles .game_element {
-    display: block;
+    /*     display: block;  */
     min-width: 200px;
     min-height: 80px;
 }
 
+#discard {
+    display: block;
+    padding-bottom: 55px;
+}
+
 #players {
     display: inline-block;
+}
+
+#turn {
+    border: 2px black dotted;
+}
+
+.token {
+    padding-bottom: 5px;
+    padding-top: 5px;
 }

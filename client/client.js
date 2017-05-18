@@ -40,6 +40,7 @@ class Client {
 	$("#discard").hide();
 	$("#decksize").hide();
 	$("#game_over").hide();
+	$("#next_turn").hide();
 	$("#playername").focus();
     }
 
@@ -129,10 +130,10 @@ class Client {
 	$("#board").show();
 	$("#discard").show();
 	$("#decksize").show();
+	$("#next_turn").show();
+	$("#chat_stuff").css("margin-top", "50px");
+	$("#centerbox").css("display","inline-block");
 	this.game_board = new board.Board(startstate, this);
-	if (this.game_board.turn == this.name) {
-	    $("#turn").show();
-	}
     }
 
     // update client game state
@@ -145,12 +146,13 @@ class Client {
     // --- Handler Helpers
     // Initialize chat after newgame_confirm
     chat_init(){
-	var self = this; // I hate javascript
+	var self = this;
 	$("#chat_container").show();
 	$("#playerlist_container").show();
 
 	// --- Chat ---
 	$("#chat_box").focus();
+	$("#chat_form").prepend($('<label>').text(this.name + ": "));
 	$("#chat_form").submit(function(event) {
 	    event.preventDefault();
 	    var chat_box = $("#chat_box");

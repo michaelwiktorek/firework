@@ -21,7 +21,8 @@ class Board {
 		         tokens:   this.update_tokens.bind(this),
 		         turn:     this.update_turn.bind(this),
 		         done:     this.update_done.bind(this),
-		         inform:   this.update_inform.bind(this)};
+		         inform:   this.update_inform.bind(this),
+		         nextturn: this.update_nextturn.bind(this)};
 	
 	this.client = client;
 	this.socket = client.socket;
@@ -39,6 +40,14 @@ class Board {
 
 	this.players = this.construct_playerlist(state.players);
 	this.construct_controls();
+
+	if (this.turn == this.client.name) {
+	    $("#turn").show();
+	} else {
+	    this.update_turn({turn: this.turn});
+	}
+
+	this.update_nextturn({nextturn: state.nextturn});
 
 	$("#decksize").text("decksize: " + this.decksize.toString());
     }
@@ -103,8 +112,10 @@ class Board {
 	    // set mouseover on player cards
 	    $(".in_hand").mouseover(function() {
 		$(this).css("border", "2px black dashed");
+		$(this).css("margin", "2px");
 	    }).mouseout(function() {
 		$(this).css("border", "1px black solid");
+		$(this).css("margin", "3px");
 	    });
 
 	    // define card click behavior
@@ -147,16 +158,6 @@ class Board {
     render_cardlist(cardlist, container) {
 	// TODO consider not clobbering existing cards
 	container.children(".player_card").remove();
-	/*
-	var self = this;
-	cardlist.reduce(function(parent, card) {
-	    let card_dom = self.render_card(card);
-	    card_dom.addClass("discarded_card");
-	    parent.append(card_dom);
-	    return card_dom;
-	}, container);
-*/
-	
 	for (let card of cardlist) {
 	    container.append(this.render_card(card));
         }
@@ -167,6 +168,7 @@ class Board {
     // are placed in the cardlist in order. Fix?
     render_gameboard(cardlist, container, discard=false) {
 	container.children(".player_card").remove();
+	let init_width = 50;
 	var board_map = {};
 	for (let card of cardlist) {
 	    let card_dom = this.render_card(card);
@@ -174,16 +176,31 @@ class Board {
 		card_dom.addClass("discarded_card");
 	    }
 	    if (card.color in board_map) { // add to pile
-		var top_card = board_map[card.color].find(".player_card").last();
+		let top_card = board_map[card.color].find(".player_card").last();
 		if (top_card.length == 0) {
 		    top_card = board_map[card.color];
 		}
 		top_card.append(card_dom);
+		// make base card as wide as all children
+		if (discard) {
+		    let bot_width = board_map[card.color].width();
+		    if (bot_width == 0) {
+			bot_width = init_width;
+		    }
+		    console.log(bot_width);
+		    board_map[card.color].width(bot_width + 20);
+		    console.log(board_map[card.color].width());
+		}
 	    } else { // make new pile
 		board_map[card.color] = card_dom;
 	    }
 	}
+	let i = 1;
 	for (let pile of Object.keys(board_map)) {
+	     if (discard) {
+		//board_map[pile].css("grid-row", i + "/" + (i+1));
+		i++;	
+	    }
 	    container.append(board_map[pile]);
 	}
     }
@@ -268,6 +285,22 @@ class Board {
 	    $("#turn").show();
 	} else {
 	    $("#turn").hide();
+	}
+	for (let player of this.players) {
+	    if (player.name == this.turn) {
+		player.dom.css("border", "1px #666666 dashed");
+		player.dom.css("border-radius", "3px");
+	    } else {
+		player.dom.css("border", "none");
+	    }
+	}
+    }
+
+    update_nextturn(state) {
+	if (state.nextturn == "") {
+	    $("#next_turn").hide();
+	} else {
+	    $("#next_turn").text("next turn: " + state.nextturn);
 	}
     }
 

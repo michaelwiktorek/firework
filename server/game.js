@@ -177,12 +177,28 @@ class Game {
 
     // set the turn index to that of the next player to go
     change_turn() {
-	this.turn = (this.turn + 1) % this.players.length;
+	this.turn = this.get_next_turn();
+    }
+
+    get_next_turn() {
+	return (this.turn + 1) % this.players.length;
+    }
+
+    get_next_turn_name() {
+	if (this.over) {
+	    return "";
+	} else {
+	    return this.players[this.get_next_turn()].name;
+	}
     }
 
     // return name for current turn
-    get_turn() {
-	return this.players[this.turn].name;
+    get_turn_name() {
+	if (this.over) {
+	    return "";
+	} else {
+	    return this.players[this.turn].name;
+	}
     }
 
     // return the starting game state
@@ -191,7 +207,8 @@ class Game {
 		 discard:  this.cardlist_json(this.discard),
 		 tokens:   this.tokens,
 		 fuse:     this.fuse,
-		 turn:     this.get_turn(),
+		 turn:     this.get_turn_name(),
+		 nextturn: this.get_next_turn_name(),
 		 board:    this.board_json(),
 		 players:  this.players_json() };
     }
@@ -246,14 +263,11 @@ class Game {
     player_play(name, index) {
 	var player = this.find_player(name);
 	var new_cards = player.place(index);
-	var turn = this.get_turn();
-	if (this.over) {
-	    turn = "";
-	}
 	return { decksize: this.deck.size(),
 		 discard:  this.cardlist_json(this.discard),
 		 newhand:  this.player_newcards(name, new_cards, index),
-	         turn:     turn,
+	         turn:     this.get_turn_name(),
+		 nextturn: this.get_next_turn_name(),
 	         board:    this.board_json(),
 	         fuse:     this.fuse,
 	         done:     this.over};
@@ -263,13 +277,10 @@ class Game {
     player_discard(name, index) {
 	var player = this.find_player(name);
 	let new_cards = player.discard(index);
-	var turn = this.get_turn();
-	if (this.over) {
-	    turn = "";
-	}
 	return { decksize: this.deck.size(),
 		 discard:  this.cardlist_json(this.discard),
-		 turn:     turn,
+		 turn:     this.get_turn_name(),
+		 nextturn: this.get_next_turn_name(),
 		 tokens:   this.tokens,
 		 newhand:  this.player_newcards(name, new_cards, index),
 	         done:     this.over};
@@ -281,8 +292,9 @@ class Game {
 	}
 	this.tokens--;
 	this.change_turn();
-	return { tokens: this.tokens,
-	         turn:   this.get_turn()};
+	return { tokens:   this.tokens,
+	         turn:     this.get_turn_name(),
+	         nextturn: this.get_next_turn_name(),};
     }
 
     find_player(name) {
