@@ -7,12 +7,16 @@ var exports = module.exports = {};
 * Game Module
 * Model for server-side gameplay. Tracks entire game state,
 * including data not available to players (i.e. deck order).
+* Also tracks what each player knows about their own hand
+* (for players who reconnect and have lost that local data)
 * Exported as "Game"
 */
 class Card {
     constructor(color, number) {
 	this.color = color;
 	this.number = number;
+	this.color_known = false;
+	this.color_known = false;
     }
 }
 
@@ -292,15 +296,61 @@ class Game {
 	         done:     this.over};
     }
 
-    player_inform() {
+    player_inform(msg) {
 	if (this.tokens < 1) {
 	    return {};
+	}
+	let player = this.players.filter(function(pl){
+	    return pl.name == msg.name;
+	})[0];
+	let prop = msg.data.property;
+	for (let index of msg.data.indices) {
+	    player.hand[index][prop + "_known"] = true;
 	}
 	this.tokens--;
 	this.change_turn();
 	return { tokens:   this.tokens,
 	         turn:     this.get_turn_name(),
 	         nextturn: this.get_next_turn_name(),};
+    }
+
+    // {playername:
+    //      {color: [index1, index2..],
+    //       number: [index1, index2..]},
+    //  playername: {..},
+    //  name:  {index: {color: col, number: num}, index: {..}} }
+    get_knowledge(name) {
+	let response = {};
+	for (let player of this.players) {
+	    if (player.name == name) {
+		let knowledge = {};
+		for (let i = 0; i < player.hand.length; i++) {
+		    let info = {};
+		    let card = player.hand[i];
+		    if (card.color_known) {
+			info.color = card.color;
+		    }
+		    if (card.number_known) {
+			info.number = card.number;
+		    }
+		    knowledge[i] = info;
+		}
+		response[name] = knowledge;
+		continue;
+	    }
+	    let knowledge = {color: [], number: []};
+	    for (let i = 0; i < player.hand.length; i++) {
+		let card = player.hand[i];
+		if (card.color_known) {
+		    knowledge.color.push(i);
+		}
+		if (card.number_known) {
+		    knowledge.number.push(i);
+		}
+	    }
+	    response[player.name] = knowledge;
+	}
+	return response;
     }
 
     find_player(name) {

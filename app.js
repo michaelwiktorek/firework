@@ -33,7 +33,11 @@ app.get('/error', function(req, res) {
 // --- Websocket IO ---
 io.on('connection', function(socket) {
     var playername = "unknown";
-    // create a new connection model
+    // IO has multiple Connections in closure,
+    // each Connection has a board, which has players and cards
+    // the Connections associated with a single game_id
+    // have a single Game model which they all share and query
+    // in response to events
     var conn = new connection.Connection(playername, socket, data);
     conn.init_handlers();
 });

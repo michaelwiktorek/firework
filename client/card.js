@@ -26,6 +26,14 @@ class Card {
 	this.data_btns_behavior();
     }
 
+    set_color_known() {
+	this.dom.children(".color_known").html("&#10004");
+    }
+
+    set_number_known() {
+	this.dom.children(".num_label").html(this.number + "&#10004");
+    }
+
     back_btn_behavior() {
 	var self = this;
 	this.back_btn.click(function (e) {

@@ -53,6 +53,7 @@ class Client {
 	$("#start_form").submit(this.game_request_click.bind(this));
 	this.socket.on("error_recov", this.error_recov.bind(this));
 	this.socket.on("error_fatal", this.error_fatal.bind(this));
+	this.socket.on("chat_notify", this.chat_notify.bind(this));
 	this.socket.on(this.confirm, this.lobby_confirm.bind(this));
 	this.socket.on("startgame", this.startgame.bind(this));
 	this.socket.on("update_playerlist", this.update_playerlist.bind(this));
@@ -66,7 +67,7 @@ class Client {
     }
 
     // handle fatal error: (for now) alert error text,
-    // then load error page
+    // then load error pagebo
     error_fatal(msg){
 	//alert(msg);
 	window.location.href = window.location.origin + "/error";
@@ -122,7 +123,7 @@ class Client {
 	$("#title").hide();
 	$("#start_area").hide();
 	var startstate = JSON.parse(msg);
-	console.log(startstate);
+	//console.log(startstate);
 
 	$("#game_area").show();
 	$("#tokens").show();
@@ -134,6 +135,10 @@ class Client {
 	$("#chat_stuff").css("margin-top", "50px");
 	$("#centerbox").css("display","inline-block");
 	this.game_board = new board.Board(startstate, this);
+
+	if ("rejoin" in startstate) {
+	    this.socket.emit("request_knowledge", JSON.stringify({name: this.name}));
+	}
     }
 
     // update client game state
@@ -142,6 +147,12 @@ class Client {
 	this.game_board.update(state);
     }
 
+    // write a message to the chat from the system
+    chat_notify(msg) {
+	var messages = $("#messages");
+	messages.append($('<li>').text("System: " + msg));
+	messages.scrollTop(messages.prop("scrollHeight"));
+    }
 
     // --- Handler Helpers
     // Initialize chat after newgame_confirm

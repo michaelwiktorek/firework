@@ -31,13 +31,21 @@ class Connection {
 	this.socket.on('chat_message', this.chat_message.bind(this));
 	this.socket.on('startgame', this.startgame.bind(this));
 	this.socket.on('action', this.handle_action.bind(this));
+	this.socket.on('request_knowledge', this.handle_knowledge.bind(this));
     }
 
     //--- Helpers ---
     // emit event to all players in this game
     broadcast(event, msg) {
 	for (let playername of Object.keys(this.my_game["players"])) {
-	    this.my_game["players"][playername].emit(event, msg);
+	    this.my_game.players[playername].emit(event, msg);
+	}
+    }
+
+    // call callback for each player in this game
+    foreach_ingame(callback) {
+	for (let playername of Object.keys(this.my_game["players"])) {
+	    callback(playername, this.my_game["players"][playername]);
 	}
     }
 
@@ -49,28 +57,25 @@ class Connection {
 	response["playerlist"] = Object.keys(this.my_game["players"]);
 	return response;
     }
-
-    // call callback for each player in this game
-    foreach_ingame(callback) {
-	for (let playername of Object.keys(this.my_game["players"])) {
-	    callback(playername, this.my_game["players"][playername]);
-	}
-    }
-
+    
     // --- Event Handlers ---
     disconnect() {
+	var self = this;
 	if (this.my_game != undefined){ // in lobby or in game
 	    if (this.my_game["model"].state == "running") { // in game
-		this.my_game["model"].state = "dead";
+		//this.my_game["model"].state = "dead";
 		this.foreach_ingame(function(playername, playersocket){
-		    playersocket.emit("error_fatal", playername + " left the game");
+		    if (playername != self.name) {
+			playersocket.emit("chat_notify", self.name + " left the game");
+		    }
 		});
+		this.broadcast("update_playerlist", JSON.stringify(this.add_playerlist()));
 	    } else if (this.my_game["model"].state == "lobby") { // in lobby
 		// if host, mark game dead and send error
 		if (this.host){
 		    this.my_game["model"].state = "dead";
 		    this.foreach_ingame(function(playername, playersocket){
-			playersocket.emit("fatal_error", "Host left the lobby");
+			playersocket.emit("error_fatal", "Host left the lobby");
 		    });
 		}
 		// if joiner, remove self from lobby and update playerlist
@@ -111,6 +116,7 @@ class Connection {
 	var json_msg = JSON.parse(msg);
 	this.name = json_msg["name"];
 	this.game_id = parseInt(json_msg["id"]);
+	var self = this;
 	if (!(this.game_id in this.games)) {
 	    this.socket.emit("error_recov", "Game does not exist");
 	    return 0;
@@ -118,8 +124,31 @@ class Connection {
 	// get the correct game
 	this.my_game = this.games[this.game_id];
 	if (this.my_game["model"].state != "lobby") {
-	    this.my_game = undefined;
-	    this.socket.emit("error_recov", "Game is running!");
+	    // if player is in game but their socket is not connected
+	    // they left, and we should consider this a "rejoin"
+	    // send gamestate from model to rejoiner with "startgame" event
+	    if (this.name in this.my_game.players && !this.my_game.players[this.name].connected) {
+		this.foreach_ingame(function(playername, playersocket){
+		    if (playername != self.name) {
+			playersocket.emit("chat_notify", self.name + " has rejoined");
+		    }
+		});
+
+		this.my_game.players[this.name] = this.socket;
+		this.socket.emit("joingame_confirm", JSON.stringify({}));
+		this.broadcast("update_playerlist", JSON.stringify(this.add_playerlist()));
+		
+		let state = this.my_game.model.get_state();
+		var hand = state["players"][this.name];
+		delete state["players"][this.name];
+		state.rejoin = true;
+		
+		this.socket.emit("startgame", JSON.stringify(state));
+	    } else {
+		this.my_game = undefined;
+		this.socket.emit("error_recov", "Game is not joinable!");
+	    }
+	   
 	    return 0;
 	}
 	// make sure players have unique names
@@ -130,7 +159,7 @@ class Connection {
 	    this.my_game = undefined;
 	    this.socket.emit("error_recov", "Name field must not be empty!");
 	} else {
-	    this.my_game["players"][this.name] = this.socket;
+	    this.my_game.players[this.name] = this.socket;
 	    this.socket.emit("joingame_confirm", JSON.stringify({}));
 	    this.broadcast("update_playerlist", JSON.stringify(this.add_playerlist()));
 	}
@@ -172,7 +201,7 @@ class Connection {
 	} else if (json_msg.action == "discard") {
 	    response = this.my_game.model.player_discard(this.name, json_msg.index);
 	} else if (json_msg.action == "inform") {
-	    response = this.my_game.model.player_inform();
+	    response = this.my_game.model.player_inform(json_msg);
 	    if (Object.keys(response).length == 0) {
 		this.socket.emit("error", "No tokens left. You shouldn't see this?");
 		return;
@@ -181,6 +210,13 @@ class Connection {
 	    }
 	}
 	this.state_update(response, "update");
+    }
+
+    handle_knowledge(msg) {
+	let json_msg = JSON.parse(msg);
+	let name = json_msg.name;
+	let response = {knowledge: this.my_game.model.get_knowledge(name)}
+	this.socket.emit("update", JSON.stringify(response));
     }
 }
 

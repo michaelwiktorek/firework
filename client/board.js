@@ -13,16 +13,17 @@ exports = module.exports = {};
 // one's own knowledge of one's hand
 class Board {
     constructor(state, client) {
-	this.updates = { fuse:     this.update_fuse.bind(this),
-			 decksize: this.update_decksize.bind(this),
-			 newhand:  this.update_newhand.bind(this),
-			 board:    this.update_stacks.bind(this),
-			 discard:  this.update_discard.bind(this),
-		         tokens:   this.update_tokens.bind(this),
-		         turn:     this.update_turn.bind(this),
-		         done:     this.update_done.bind(this),
-		         inform:   this.update_inform.bind(this),
-		         nextturn: this.update_nextturn.bind(this)};
+	this.updates = { fuse:      this.update_fuse.bind(this),
+			 decksize:  this.update_decksize.bind(this),
+			 newhand:   this.update_newhand.bind(this),
+			 board:     this.update_stacks.bind(this),
+			 discard:   this.update_discard.bind(this),
+		         tokens:    this.update_tokens.bind(this),
+		         turn:      this.update_turn.bind(this),
+		         done:      this.update_done.bind(this),
+		         inform:    this.update_inform.bind(this),
+		         nextturn:  this.update_nextturn.bind(this),
+		         knowledge: this.update_knowledge.bind(this)};
 	
 	this.client = client;
 	this.socket = client.socket;
@@ -35,7 +36,8 @@ class Board {
 	this.turn     = state.turn;
 	this.hand     = [];
 
-	this.discard_colors = [];
+	this.board_color_order = [];
+	this.discard_color_order = [];
 
 	this.game_area = $("#game_area");
 	this.players_area = $("#players");
@@ -43,10 +45,10 @@ class Board {
 	this.players = this.construct_playerlist(state.players);
 	this.construct_controls();
 
-	this.update_turn({turn: this.turn});
-	this.update_nextturn({nextturn: state.nextturn});
-
-	$("#decksize").text("decksize: " + this.decksize.toString());
+	// this.update_turn({turn: this.turn});
+	// this.update_nextturn({nextturn: state.nextturn});
+	// $("#decksize").text("decksize: " + this.decksize.toString());
+	this.update(state);
     }
 
     // construct list of player objects from state data
@@ -168,6 +170,12 @@ class Board {
 	});
 	let init_width = 50;
 	var board_map = {};
+	let color_order;
+	if (discard) {
+	    color_order = this.discard_color_order;
+	} else {
+	    color_order = this.board_color_order;
+	}
 	for (let card of cardlist) {
 	    let card_dom = this.render_card(card);
 	    if (discard) {
@@ -189,13 +197,13 @@ class Board {
 		}
 	    } else { // make new pile
 		board_map[card.color] = card_dom;
-		// store discard piles in persistent order 
-		if (discard && this.discard_colors.indexOf(card.color) < 0) {
-		    this.discard_colors.push(card.color);
+		// store discard piles in persistent order
+		if (color_order.indexOf(card.color) < 0) {
+		    color_order.push(card.color);
 		}
 	    }
 	}
-	for (let color of this.discard_colors) {
+	for (let color of color_order) {
 	    container.append(board_map[color]);
 	}
     }
@@ -215,9 +223,11 @@ class Board {
 
     // update board state based on state received from server
     update(state) {
-	//console.log(state);
+	console.log(state);
 	for (let update of Object.keys(state)) {
-	    this.updates[update](state);
+	    if (update in this.updates) {
+		this.updates[update](state);
+	    }
 	}
 	
     }
@@ -326,9 +336,9 @@ class Board {
 		if (player.name == state.inform.name) {
 		    for (let index of data.indices) {
 			if (property == "color") {
-			    player.hand[index].dom.children(".color_known").html("&#10004");
+			    player.hand[index].set_color_known();
 			} else if (property == "number") {
-			    player.hand[index].dom.children(".num_label").html(value + "&#10004");
+			    player.hand[index].set_number_known();
 			}
 		    }
 		}
@@ -340,6 +350,40 @@ class Board {
 		    this.hand[index].set_color(value);
 		} else if (property == "number") {
 		    this.hand[index].set_number(value);
+		}
+	    }
+	}
+    }
+
+    // get all players' knowledge about their own hands
+    // then update DOM accordingly
+    update_knowledge(state) {
+	let knowledge = state.knowledge;
+	console.log(knowledge);
+	for (let player of Object.keys(knowledge)) {
+	    if (player == this.client.name) {
+		let data = knowledge[player];
+		for (let index of Object.keys(data)) {
+		    let card = data[index];
+		    if ("color" in card) {
+			this.hand[index].set_color(card.color);
+		    }
+		    if ("number" in card) {
+			this.hand[index].set_number(card.number);
+		    }
+		}
+	    } else {
+		let data = knowledge[player];
+		let color_indices = data.color;
+		let number_indices = data.number;
+		let client_player = this.players.filter(function(pl){
+		    return pl.name == player;
+		})[0];
+		for (let index of color_indices) {
+		    client_player.hand[index].set_color_known();
+		}
+		for (let index of number_indices) {
+		    client_player.hand[index].set_number_known();
 		}
 	    }
 	}
