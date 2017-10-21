@@ -1,0 +1,52 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww17600\viewh16520\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 DONE ------------------\
+\
+next - display playerlist\
+redisplay on player join/disconnect\
+add ready button for starter\
+instantiate game instance on ready,\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 IMPORTANT: associate player sockets with game id, player names in storage, for limited broadcast\
+send only board state, other players' hands to each player\
+server knows entire game state, but only sends select data to players\
+send: other players' hands, including their knowledge (?)\
+	deck size\
+	board data\
+	discard data\
+socket cannot emit "error" or it crashes come on seriously\
+display with basic graphics initially\
+each control button should send an event to server with playername, game id, control data\
+server draws cards, broadcasts state delta to all players\
+on receiving state delta, update graphics\
+check fuse behavior\
+refactor button callbacks for player_cards\
+mark other players' hands as known\
+fix knowledge token button cancel / other button interaction\
+rearrange graphics for small screen\
+fix own-hand rendering with less than 4 cards\
+figure out a more compact rendering method for the discard pile ******\
+make graphics look good\
+show current turn\
+display next turn\
+display discard piles in numerical order\
+figure out game deletion/management after game finishes\
+BUG: client-side board not rendering/accepting 2s if no cards have been discarded. What???\
+rejoin: display correct "left game" name\
+rejoin: initialize chat!\
+Don't crash on user quit - add a rejoin function, end game after a timeout (2min?) \
+rejoin: restore knowledge indicators/self-knowledge on rejoin. Add data to game model? retrieve on request (done, need TEST)\
+rejoin: tokens, fuse, gameboard, discard pile not appearing\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+TODO ------------------\
+\
+pass host to different user if host quits?\
+\
+store list of active games for rejoining purposes, display on front page\
+\
+delete game if host leaves?}

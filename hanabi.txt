@@ -1,0 +1,36 @@
+Online hanabi game idea
+online game with strong API suitable for AI development
+fun to play as well
+
+First player workflow:
+1. Enter name
+2. click "create game"
+3. receive shareable link
+4. share link to friends
+5. click "start" after friends have said "ready"?
+6. play game
+
+Other player workflow:
+1. click/paste link
+2. enter name
+3. click "ready"
+4. play game
+
+Server workflow:
+1. create game entity
+2. generate unique shareable link
+3. store game state, including turns/board/deck/hands
+4. add players to game upon receiving names, lock after "start"
+5. receive move (gamestate? check legality?) from client
+6. send new gamestate to all clients
+7. all communication via json/ajax
+8. store score?
+
+Game UI:
+1. show player hands, board, discard, fuse
+2. show blank cards in hand, with knowledge (question mark for none?)
+3. blank cards have notepad for guesses?
+4. buttons on hand: play/discard
+5. button on side: spend knowledge token
+6. spend token: click other player card, then color/number/back
+7. "confirm move button"? might be unnecessary
